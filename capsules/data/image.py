@@ -18,12 +18,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 import sonnet as snt
 import tensorflow as tf
 from tensorflow import nest
 import tensorflow_datasets as tfds
+import glob
 
 
 from stacked_capsule_autoencoders.capsules.data import tfrecords as _tfrecords
@@ -83,6 +85,48 @@ def _create_mnist(subset, batch_size, **kwargs):
   return tfds.load(
       name='mnist', split=subset, **kwargs).repeat().batch(batch_size)
 
+def _create_dataset256(subset, batch_size, **kwargs):
+    img_list = []
+    images_path = sorted(glob.glob('/home/gpu/qianyu/dataset_256/{}/images/*.png'.format(subset)))
+    for img in images_path:
+      # image_string = tf.read_file(img)
+      img_1 = tf.io.read_file(img)
+      n = tf.image.decode_png(img_1)
+      n = tf.image.rgb_to_grayscale(n, name=None)
+      # n = tf.image.resize(n,size = [300,300])
+      n = tf.cast(n,tf.float32)
+      img_list.append(n)
+    return tf.data.Dataset.from_tensor_slices({'image':img_list,'label':np.random.randint(10, size=len(img_list), dtype=np.int64)}).repeat().batch(batch_size)
+
+def _create_ucmerced(subset, batch_size, **kwargs):
+    img_list = []
+    kind_list = []
+    images_path = sorted(glob.glob('/home/gpu/qianyu/UCMerced_LandUse/{}/*.png'.format(subset)))
+    for img in images_path:
+      # image_string = tf.read_file(img)
+      img_1 = tf.io.read_file(img)
+      n = tf.image.decode_png(img_1)
+      n = tf.image.rgb_to_grayscale(n, name=None)
+      n = tf.image.resize(n, size=[256,256])
+      n = tf.cast(n,tf.float32)
+      img_list.append(n)
+      kind = img.split('\\')[-1][0]
+      if kind == 'a':
+        kind = 0
+      elif kind == 'b':
+        kind = 1
+      elif kind == 'f':
+        kind = 2
+      elif kind == 'h':
+        kind = 3
+      else:
+        kind = 4
+      kind_list.append(kind)
+    sh = np.arange(len(img_list))
+    np.random.shuffle(sh)
+    img_list = [img_list[x] for x in sh]
+    kind_list = np.array([kind_list[x] for x in sh], dtype=np.int64)
+    return tf.data.Dataset.from_tensor_slices({'image':img_list,'label':kind_list}).repeat().batch(batch_size)
 
 
 SUPPORTED_DATSETS = set(

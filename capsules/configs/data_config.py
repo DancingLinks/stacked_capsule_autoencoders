@@ -80,3 +80,51 @@ def make_constellation(config):
   # a separate dataset for validation
   res = AttrDict(trainset=dataset, validset=dataset)
   return res
+
+
+def make_dataset256(config):
+  """Creates the dataset_256 dataset."""
+
+  # data is created online, so there is no point in having
+  # a separate dataset for validation
+
+  def to_float(x):
+    return tf.to_float(x) / 255.
+
+  transform = [to_float]
+  transform.append(functools.partial(preprocess.pad_and_shift,
+                                       output_size=config.canvas_size,
+                                       shift=None))
+
+  batch_size = config.batch_size
+
+  res = AttrDict(
+    trainset=image.create(
+        'dataset256', subset='train', batch_size=batch_size, transforms=transform),
+    validset=image.create(
+        'dataset256', subset='test', batch_size=batch_size, transforms=transform))
+  return res
+
+
+def make_ucmerced(config):
+  """Creates the dataset_256 dataset."""
+
+  # data is created online, so there is no point in having
+  # a separate dataset for validation
+
+  def to_float(x):
+    return tf.to_float(x) / 255.
+
+  transform = [to_float]
+  transform.append(functools.partial(preprocess.pad_and_shift,
+                                       output_size=config.canvas_size,
+                                       shift=None))
+
+  batch_size = config.batch_size
+
+  res = AttrDict(
+    trainset=image.create(
+        'ucmerced', subset='train', batch_size=batch_size, transforms=transform),
+    validset=image.create(
+        'ucmerced', subset='test', batch_size=batch_size, transforms=transform))
+  return res
