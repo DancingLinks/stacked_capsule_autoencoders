@@ -33,6 +33,12 @@ def get(config):
     dataset = make_mnist(config)
   elif config.dataset == 'constellation':
     dataset = make_constellation(config)
+  elif config.dataset == 'dataset256':
+    dataset = make_dataset256(config)
+  elif config.dataset == 'ucmerced':
+    dataset = make_ucmerced(config)
+  else:
+    return 
 
   return dataset
 
