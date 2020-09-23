@@ -38,7 +38,7 @@ def get(config):
   elif config.dataset == 'ucmerced':
     dataset = make_ucmerced(config)
   else:
-    return 
+    return
 
   return dataset
 

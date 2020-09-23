@@ -110,7 +110,7 @@ def _create_ucmerced(subset, batch_size, **kwargs):
       n = tf.image.resize(n, size=[256,256])
       n = tf.cast(n,tf.float32)
       img_list.append(n)
-      kind = img.split('\\')[-1][0]
+      kind = img.split('/')[-1][0]
       if kind == 'a':
         kind = 0
       elif kind == 'b':
